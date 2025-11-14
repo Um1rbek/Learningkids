@@ -1,4 +1,6 @@
-import React, { createContext, useContext, useState } from 'react';
+'use client';
+
+import React, { createContext, useContext, useState, useEffect } from 'react';
 
 // Tarjimalar
 const translations = {
@@ -50,13 +52,21 @@ const LanguageContext = createContext({
 });
 
 export const LanguageProvider = ({ children }) => {
-  const [lang, setLang] = useState(() => {
+  const [lang, setLang] = useState('en');
+
+  // localStorage faqat brauzerda
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+
     const saved = localStorage.getItem('kidsLearnLang');
-    return saved || 'en';
-  });
+    if (saved && ['en', 'uz'].includes(saved)) {
+      setLang(saved);
+    }
+  }, []);
 
   // Tilni saqlash
-  React.useEffect(() => {
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
     localStorage.setItem('kidsLearnLang', lang);
   }, [lang]);
 

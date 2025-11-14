@@ -16,16 +16,22 @@ export default function App() {
   });
   const [lessonScore, setLessonScore] = useState(0);
 
-  // localStorage dan yuklash
+  // localStorage dan yuklash (faqat brauzerda)
   useEffect(() => {
+    if (typeof window === 'undefined') return;
     const saved = localStorage.getItem('kidsLearnProgress');
     if (saved) {
-      setProgress(JSON.parse(saved));
+      try {
+        setProgress(JSON.parse(saved));
+      } catch (e) {
+        console.error('Progress parse error:', e);
+      }
     }
   }, []);
 
   // localStorage ga saqlash
   useEffect(() => {
+    if (typeof window === 'undefined') return;
     localStorage.setItem('kidsLearnProgress', JSON.stringify(progress));
   }, [progress]);
 
@@ -34,7 +40,6 @@ export default function App() {
     const newPoints = progress.points + score;
     const newBadges = [...progress.badges];
 
-    // Nishonlarni qo'shish
     if (score >= 80 && !newBadges.includes('star')) newBadges.push('star');
     if (score >= 60 && !newBadges.includes('heart')) newBadges.push('heart');
     if (score === 100 && !newBadges.includes('trophy')) newBadges.push('trophy');
@@ -52,25 +57,31 @@ export default function App() {
 
   return (
     <LanguageProvider>
+      {/* Home */}
       {currentPage === 'home' && (
         <HomePage
           onStart={() => navigateTo('lesson')}
           onProfile={() => navigateTo('profile')}
         />
       )}
+
+      {/* Lesson */}
       {currentPage === 'lesson' && (
         <LessonPage
           onComplete={handleLessonComplete}
           onBack={() => navigateTo('home')}
         />
       )}
+
+      {/* Profile — progress prop YO'Q! */}
       {currentPage === 'profile' && (
         <ProfilePage
-          progress={progress}
           onBack={() => navigateTo('home')}
           onPlayAgain={() => navigateTo('lesson')}
         />
       )}
+
+      {/* Completion */}
       {currentPage === 'completion' && (
         <CompletionPage
           score={lessonScore}

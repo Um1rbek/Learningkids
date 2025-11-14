@@ -1,14 +1,32 @@
 'use client';
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Home, Trophy, Star } from 'lucide-react';
 import { useTranslation } from '@/shared/i18n/translations';
 import GlowingText from '@/shared/ui/GlowingText';
 import badges from '@/features/quiz/badges';
 
-const ProfilePage = ({ progress, onBack, onPlayAgain }) => {
+// Default progress (localStorage bo'sh bo'lsa)
+const DEFAULT_PROGRESS = { points: 0, badges: [], completedLessons: [] };
+
+const ProfilePage = ({ onBack, onPlayAgain }) => {
   const { t } = useTranslation();
+  const [progress, setProgress] = useState(DEFAULT_PROGRESS);
+
+  // localStorage dan yuklash (faqat brauzerda)
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+
+    const saved = localStorage.getItem('kidsLearnProgress');
+    if (saved) {
+      try {
+        setProgress(JSON.parse(saved));
+      } catch (e) {
+        setProgress(DEFAULT_PROGRESS);
+      }
+    }
+  }, []);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-indigo-400 via-purple-400 to-pink-400 p-4 md:p-8">
@@ -35,7 +53,7 @@ const ProfilePage = ({ progress, onBack, onPlayAgain }) => {
             <GlowingText>{t('profile')}</GlowingText>
           </h2>
 
-          {/* Ballar va nishonlar statistikasi */}
+          {/* Ballar va nishonlar */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12">
             <motion.div
               whileHover={{ scale: 1.05 }}
@@ -94,7 +112,7 @@ const ProfilePage = ({ progress, onBack, onPlayAgain }) => {
             })}
           </div>
 
-          {/* Yana o'ynash tugmasi */}
+          {/* Yana o'ynash */}
           <motion.button
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
